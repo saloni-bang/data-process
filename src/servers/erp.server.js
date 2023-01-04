@@ -1,5 +1,5 @@
 const express = require("express");
-const { TooManyRequests } = require("http-errors");
+const { getDbConnection } = require('../lib/db')
 
 const app = express();
 
@@ -38,7 +38,7 @@ app.get("/transform/transactions", function (req, res) {
     res.status(200).send(transformedTransactions);
 })
 
-app.get("/load/transactions", function (req, res) {
+app.get("/load/transactions", async function (req, res) {
 
     // transaform part
 
@@ -56,19 +56,9 @@ app.get("/load/transactions", function (req, res) {
 
     //load part
 
-    const mysql = require('mysql');
-    const connection = mysql.createConnection({
-        host: '127.0.0.1',
-        user: 'user',
-        password: 'password',
-        database: 'ERP_DUMPS'
-    });
+    const dbConn = await getDbConnection();
 
-    connection.connect();
-
-    // create table transactions
-
-    connection.query(`
+    const [tableErr, tableRes] = await dbConn.query(`
         CREATE TABLE ERP_TRANSACTIONS (
             date DATE,
             matnr BIGINT,
@@ -76,66 +66,58 @@ app.get("/load/transactions", function (req, res) {
             transaction_id varchar(50),
             transaction_status varchar(15),
             cost int,
-            currency varchar(5)
+            currency varchar(5),
+            PRIMARY KEY (transaction_id)
         );
-    `, function (error, results, fields) {
-        if (error && error.code !== 'ER_TABLE_EXISTS_ERROR') throw error;
-        console.log('table created');
+    `);
 
-        const values = transformedTransactions.map(i => {
-            i.date = new Date(i.date);
-            return Object.values(i)
-        });
+    const values = transformedTransactions.map(i => {
+        i.date = new Date(i.date);
+        return Object.values(i)
+    });
 
-        connection.query(`
-        INSERT INTO ERP_TRANSACTIONS (date, transaction_id, transaction_status, matnr, units, cost, currency) VALUES ?`,
-            [values], function (err) {
-                if (err) throw err;
-                connection.end();
-                console.log('SUCCESS')
-            }
-        )
-    })
+    const [insertErr, insertRes] = await dbConn.query(
+        `INSERT INTO ERP_TRANSACTIONS (date, transaction_id, transaction_status, matnr, units, cost, currency) VALUES ?`,
+        [values]
+    );
 
+    if (insertErr) {
+        return res.status(500).send(insertErr);
+    }
 
+    return res.status(200).send(insertRes);
 
 })
 
 
-app.get("/load/materials", function (req, res) {
+app.get("/load/materials", async function (req, res) {
 
     const materials = require("../mock/erp.json").materials;
 
-    const mysql = require('mysql');
-    const connection = mysql.createConnection({
-        host: '127.0.0.1',
-        user: 'user',
-        password: 'password',
-        database: 'ERP_DUMPS'
+    const dbConn = await getDbConnection();
+
+    const [tableErr, tableRes] = dbConn.query(`
+        CREATE TABLE ERP_MATERIALS (
+            matnr BIGINT,
+            matnr_desc varchar(255),
+            PRIMARY KEY (matnr)
+        );
+    `)
+
+    const values = materials.map(i => {
+        return Object.values(i)
     });
 
-    connection.connect();
-    connection.query(`
-    CREATE TABLE ERP_MATERIALS (
-        matnr BIGINT,
-        matnr_desc varchar(255)
-        );
-        `, function (error) {
-        if (error && error.code !== 'ER_TABLE_EXISTS_ERROR') throw error
-        console.log("material table created");
-        const values = materials.map(function (item) {
-            return Object.values(item)
-        })
-        connection.query(`
-        INSERT INTO ERP_MATERIALS (matnr, matnr_desc ) VALUES ?`,
-            [values], function (err) {
-                if (err) throw err;
-                connection.end();
-                console.log('SUCCESS')
-                res.send("success")
-            }
-        )
-    })
+    const [insertErr, insertRes] = await dbConn.query(
+        `INSERT INTO ERP_MATERIALS (matnr, matnr_desc ) VALUES ?`,
+        [values]
+    );
+
+    if (insertErr) {
+        return res.status(500).send(insertErr);
+    }
+
+    return res.status(200).send(insertRes);
 })
 
 app.get("/load/material-costs", function (req, res) {
