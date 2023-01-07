@@ -6,6 +6,15 @@ const dbConn = {
     query: async (queryString, options = {}) => {
         const [error, data] = [dbConn.error, null];
         return [error, data]
+    },
+    transact: async (asyncFunc = async () => null) => {
+        const [err, data] = [new Error('asyncFunc is not provided'), null];
+        return [err, null]
+    },
+    rollback: async () => Promise.resolve(null),
+    commit: async () => {
+        const [error, data] = [new Error('commit not defined'), null];
+        return [error, data];
     }
 }
 
@@ -34,7 +43,6 @@ const getDbConnection = async () => {
         return dbConn;
     }
 
-
     dbConn.connected = true;
 
     dbConn.error = null;
@@ -50,6 +58,62 @@ const getDbConnection = async () => {
 
         return queryPromise;
 
+    }
+
+    dbConn.rollback = async () => {
+        const rollbackProm = new Promise((resolve, reject) => {
+            mysqlCon.rollback((err, data) => {
+                if (err) reject();
+                resolve();
+            })
+        });
+
+        return await rollbackProm;
+    }
+
+    dbConn.commit = async () => {
+        const commitProm = new Promise((resolve, reject) => {
+            mysqlCon.commit((err, data) => {
+                if (err) resolve([err, null]);
+                resolve([null, data]);
+            })
+        });
+
+        return await commitProm;
+    }
+
+    dbConn.transact = async (asyncFunc = async () => null) => {
+
+        let transactErr, transactRes;
+
+        const beginTransactionProm = new Promise((resolve, reject) => {
+            mysqlCon.beginTransaction((err, data) => {
+                if (err) resolve([err, null]);
+                resolve([null, data]);
+            })
+        });
+
+        [transactErr, transactRes] = await beginTransactionProm;
+
+        if (transactErr) {
+            return [transactErr, transactRes];
+        }
+
+        try {
+            transactRes = await asyncFunc();
+        } catch (err) {
+            await dbConn.rollback();
+            return [err, null];
+        }
+
+        const [cErr, cRes] = await dbConn.commit();
+
+        if (cErr) {
+            await dbConn.rollback()
+            return [cErr, null]
+        }
+
+        return [transactErr, transactRes];
     }
 
     return dbConn;

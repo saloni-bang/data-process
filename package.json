@@ -1,5 +1,10 @@
 {
+  "name": "data-process-demo",
+  "scripts": {
+    "start": "node src/servers/all.servers.js"
+  },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "mysql": "^2.18.1"
   }

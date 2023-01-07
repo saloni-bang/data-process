@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="home.css">
+<script src="home.js"></script>
+
+<body onload="init()">
+    <div class="content">
+        <h1>Demo Project on Data Processing and ETL</h1>
+        <p> This demo project demonstrates the ETL process used to process data from two systems
+            <ul>
+                <li>ERP System: Mock of a SAP Enterprise Resource Planning Sytem</li>
+                <li>SRM System: Mock of a SAP Suplier Relationship Management System </li>
+            </ul>
+        </p>
+      
+        <p>The ERP system has details about materials manufactured by a the client ans the sales information of the same.
+            The SRM system on the other hand has procurement details for procuring raw materials or products that are used
+            for manufacturing the materials.
+            Each material has a "Bill of Material" which consists of the products it is made of.
+            The sales of a materials and the prodcurement of products for manfacturing them helps the client estimate
+            the of expenses and profits made by the company.
+        </p>
+    </div>
+    <div id="main"></div>
+    <div id="loader" class="loader hide">
+        <div id="spiner" class="lds-dual-ring"></div>
+    </div>
+</body>
+
+</html>
