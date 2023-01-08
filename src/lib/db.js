@@ -26,7 +26,7 @@ const getDbConnection = async () => {
         host: '127.0.0.1',
         user: 'user',
         password: 'password',
-        database: 'dataprocess-db',
+        database: 'dataprocess_db',
         multipleStatements: true
     });
 
