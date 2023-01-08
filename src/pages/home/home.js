@@ -44,6 +44,9 @@ const pageStructure = {
             loadSrmVendors: 'http://localhost:3090/load-srm-vendors',
             loadSrmTransactions: 'http://localhost:3090/load-srm-transactions'
         }
+    },
+    "4: Analyze": {
+        getMaterialProcurementVsSellingPrice: 'http://localhost:3090/material-proc-vs-sell'   
     }
 }
 

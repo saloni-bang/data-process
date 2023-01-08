@@ -37,7 +37,7 @@ for (let i = 1; i < 601; i++) {
         transaction_status: status[crypto.randomInt(0, 2)],
         vendor_id: vendors[crypto.randomInt(0, 10)].vendor_id,
         product_id: products[crypto.randomInt(0, 100)].product_id,
-        unit_price: crypto.randomInt(40, 250),
+        unit_price: crypto.randomInt(5, 15),
         currency: 'USD',
         total_units: crypto.randomInt(1, 68)
     }

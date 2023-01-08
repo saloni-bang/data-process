@@ -266,5 +266,40 @@ app.get('/clear-all', async (req, res) => {
 
 });
 
+app.get('/material-proc-vs-sell', async (req, res) => {
+    const queryStr = `        
+    WITH material_proc AS (
+            select  
+                    a.matnr,
+                    a.product_id, 
+                    a.product_units,
+                    (a.product_units * avg(b.unit_price)) as 'proc_price'
+            from erp_bill_of_materials  a , srm_transactions b
+            where a.product_id = b.product_id 
+            group by matnr, product_id, product_units
+            order by matnr
+    ),
+    material_proc_unit AS (
+            select matnr, sum(proc_price) as 'proc_unit_price'
+            from material_proc
+            group by matnr
+            order by matnr
+    )
+    select a.matnr, sum(proc_unit_price * units) as 'proc_price', sum(cost) as 'sell_price'
+    from material_proc_unit a , erp_transactions b 
+    where a.matnr = b.matnr
+    group by matnr
+    order by matnr;`;
+
+    const dbConn = await getDbConnection();
+
+    const [err, data] = await dbConn.query(queryStr)
+
+    if (err) return res.status(500).send(err)
+
+    return res.status(200).send(data);
+
+})
+
 
 app.listen(3090, () => log('etl server running at http://localhost:3090'));

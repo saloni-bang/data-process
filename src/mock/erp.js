@@ -15,7 +15,7 @@ const maraCosts = [];
 for(let i = 1; i < 21; i++){
     maraCosts.push({
         matnr: materials[i-1].matnr,
-        unit_price: crypto.randomInt(30,500),
+        unit_price: crypto.randomInt(400,500),
         currency: 'USD'
     })
 }
@@ -27,7 +27,7 @@ for(let i = 1; i < 81; i++) {
         bom_id: 20000 + i,
         matnr: materials[crypto.randomInt(0, 20)].matnr,
         product_id: k.products[crypto.randomInt(0,100)].product_id,
-        product_units: crypto.randomInt(1, 6)
+        product_units: crypto.randomInt(1, 5)
     })
 }
 
