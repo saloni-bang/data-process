@@ -3,8 +3,8 @@ body {
 }
 
 .content {
-  margin: 50px;
-  max-width: 70%;
+    margin: 50px;
+    max-width: 70%;
 }
 
 .loader {
@@ -21,7 +21,7 @@ body {
     width: 80px;
     height: 80px;
     position: absolute;
-    top:0;
+    top: 0;
     left: 45%;
 }
 
@@ -52,36 +52,41 @@ body {
     padding: 20px;
     width: 100%;
     text-align: left;
-    transition: 0.4s;
     position: relative;
     font-size: 20px;
 }
 
 button {
     margin: 10px;
-    border-radius: 2px;
-    background-color: whitesmoke;
+    border-radius: 5px;
+    background-color: #ffffff;
+    height: 35px;
+    border: 2px solid #007bffd7;
+    font-weight: 600;
+
 }
 
 #main {
     width: 80%;
     overflow: auto;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .hide {
     display: none;
+    transition: 0.6s;
 }
 
 .title {
     background-color: #d3d3d3;
     padding: 10px;
+    font-weight: 600;
 }
 
-.tableContainer {
+.resultContainer {
     font-size: 12px;
-    height: 200px;
-    width: 600px;
-    overflow: auto;
+    width: 70%;
     margin-left: 10px;
     margin-top: 10px;
 }
@@ -98,9 +103,21 @@ th {
 }
 
 .options {
-    font-size: 14px;
+    font-weight: 600;
+    float: right;
     color: #007bffd7;
     text-decoration: underline;
     margin-left: 15px;
     margin-bottom: 10px;
+}
+
+.tableContainer {
+    height: 300px;
+    overflow: auto;
+}
+
+.collapsibleIcon {
+    float: right;
+    color: #007bffd7;
+    margin-right: 20px;
 }

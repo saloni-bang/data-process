@@ -3,8 +3,12 @@ const downIco = '[+]';
 const hideIco = '&#10799;';
 const dloadIco = '&#10515;';
 
+const delayProm = async (delayInMs) => {
+    await new Promise((resolve) => setTimeout(() => resolve(), delayInMs))
+}
+
 const pageStructure = {
-    stepOneExtract: {
+    "1: Extract": {
         erpSystem: {
             extractMaterials: 'http://localhost:4040/extract/materials',
             extractMaterialCosts: 'http://localhost:4040/extract/costs',
@@ -17,12 +21,30 @@ const pageStructure = {
             extractTransactions: 'http://localhost:3038/extract/transactions'
         }
     },
-    stepTwoTransform: {
-        ERPSystem: {
-            transformTransactionAmount: 'http://localhost:4040/transform/transactions'
+    "2: Transform": {
+        transformErp: {
+            calculateErpTransactionCost: 'http://localhost:3090/transform-erp-transactions'
+        },
+        transformSrm: {
+            calculateSrmTransactionCost: 'http://localhost:3090/transform-srm-transactions'
         }
     },
-    stepThreeLoad: {}
+    "3: Load": {
+        clearAll: 'http://localhost:3090/clear-all',
+        loadErp: {
+            initializeErpTables: 'http://localhost:3090/initialize-erp-tables',
+            loadErpMaterials: 'http://localhost:3090/load-erp-materials',
+            loadErpMaterialCosts: 'http://localhost:3090/load-erp-material-costs',
+            loadErpBillOfMaterials: 'http://localhost:3090/load-erp-bill-of-materials',
+            loadErpTransactions: 'http://localhost:3090/load-erp-transactions'
+        },
+        loadSrm: {
+            initializeSrmTables: 'http://localhost:3090/initialize-srm-tables',
+            loadSrmProducts: 'http://localhost:3090/load-srm-products',
+            loadSrmVendors: 'http://localhost:3090/load-srm-vendors',
+            loadSrmTransactions: 'http://localhost:3090/load-srm-transactions'
+        }
+    }
 }
 
 const showLoader = () => {
@@ -65,46 +87,81 @@ const getPascal = (input) => {
         .replace(/^./, function (str) { return str.toUpperCase(); })
 }
 
-const hideToggle = (id, e) => {
+const toggleCollapse = (id, e) => {
     const el = document.getElementById(id);
-    const titleEl = document.getElementById(`${id}Title`);
+    const titleEl = document.getElementById(id + 'Title');
+    const colapsibleIcon = document.getElementById(id + 'Icon')
 
-    if (e.target !== titleEl) return e.stopPropagation();
+    if (e.target !== titleEl && e.target !== colapsibleIcon) return e.stopPropagation();
 
     for (const child of el.children) {
-        child.classList.toggle('hide')
+        child.classList.toggle('hide');
     }
 
-    const icon = titleEl.innerText.includes(upIco) ? downIco : upIco;
-    titleEl.innerHTML = `${getPascal(id)} &nbsp; &nbsp; ${icon}`;
+    colapsibleIcon.innerHTML = colapsibleIcon.innerText.includes(upIco) ? downIco : upIco;
     titleEl.classList.remove('hide');
 
     e.stopPropagation();
 
 }
 
-const toggleTableAndOptions = (key) => {
-    const tableContainer = document.getElementById(key + 'Table');
-    const optionsContainer = document.getElementById(key + 'Options');
+const closeResults = (key) => {
+    const { classList } = document.getElementById(key + 'Results');
+    if (!classList.contains('hide')) {
+        classList.add('hide');
+    }
+}
 
-    tableContainer.classList.toggle('hide');
-    optionsContainer.classList.toggle('hide');
+const response200 = {};
+
+const csvDownload = (key) => {
+    const data = response200[key];
+    const fields = Object.keys(data[0])
+    const replacer = (key, value) => value === null ? '' : value;
+    let csv = data.map((row) => {
+        return fields.map((fieldName) => JSON.stringify(row[fieldName], replacer)).join(',')
+    })
+    csv.unshift(fields.join(',')) // add header column
+    csv = csv.join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${key}.csv`;
+    a.click();
 }
 
 const showResults = async (url, key) => {
-    const tableContainer = document.getElementById(key + 'Table');
-    const optionsContainer = document.getElementById(key + 'Options');
+    const resultContainer = document.getElementById(key + 'Results');
 
     showLoader();
     const res = await fetch(url);
-    const data = await res.json();
+    const result = await res.text();
+    await delayProm(1200);
     hideLoader();
 
-    tableContainer.innerHTML = ` Count: ${data.length}`;
-    tableContainer.innerHTML += getTableFromObjectArray(data);
+    if (res.status !== 200) {
+        resultContainer.innerHTML = `
+            <b style="color:red;">Error!</b>
+            <span class="options" onclick="closeResults('${key}')">${hideIco} Close</span>
+            <br/> ${result}`;
+    } else {
+        const data = JSON.parse(result);
+        if (Array.isArray(data) && typeof data[0] == 'object') {
+            response200[key] = data;
+            resultContainer.innerHTML = `
+                <b style="color:green;">Count: ${data.length} </b>
+                <span class="options" onclick="closeResults('${key}')">${hideIco} Close</span>
+                <span class="options" onclick="csvDownload('${key}')">${dloadIco} Download</span>
+                <div class='tableContainer'> ${getTableFromObjectArray(data)} </div>`;
+        } else {
+            resultContainer.innerHTML = `
+                <b style="color:green;">Success!</b>
+                <span class="options" onclick="closeResults('${key}')">${hideIco} Close</span>
+                <br/> ${result}`;
+        }
+    }
 
-    tableContainer.classList.remove('hide');
-    optionsContainer.classList.remove('hide');
+    resultContainer.classList.remove('hide');
 }
 
 const init = () => {
@@ -117,13 +174,9 @@ const init = () => {
             const childDiv = document.createElement('div');
             childDiv.innerHTML = `
                 <button onclick="showResults('${obj}', '${key}')">${pascalText}</button>
-                <div id="${key}Options" class="hide" >
-                    <span class="options">${dloadIco} Download</span>
-                    <span class="options" onclick="toggleTableAndOptions('${key}')">${hideIco} Close</span> 
-                </div>
-                <div id="${key}Table" class="tableContainer hide"></div>
+                <div id="${key}Results" class="resultContainer hide"></div>
             `;
-            div.appendChild(childDiv);
+            div.children[1].appendChild(childDiv);
             return;
         } else {
             const childDiv = document.createElement('div');
@@ -131,10 +184,12 @@ const init = () => {
             childDiv.className = `accordion ${level > 1 ? 'hide' : ''}`;
             childDiv.innerHTML = pascalText ? `
                 <div id="${key}Title" class="title">
-                    ${pascalText} &nbsp; &nbsp; ${level > 1 ? upIco : downIco}
+                    ${pascalText}
+                    <span id="${key}Icon" class="collapsibleIcon">${downIco}</span>
                 </div>
+                <div id="${key}Content" class="hide"></div>
             `: '';
-            childDiv.onclick = (e) => hideToggle(key, e)
+            childDiv.onclick = (e) => toggleCollapse(key, e)
             div.appendChild(childDiv);
             div = childDiv;
         }

@@ -26,7 +26,8 @@ const getDbConnection = async () => {
         host: '127.0.0.1',
         user: 'user',
         password: 'password',
-        database: 'dataprocess-db'
+        database: 'dataprocess-db',
+        multipleStatements: true
     });
 
     const connectionPromise = new Promise((resolve, reject) => {
@@ -48,9 +49,9 @@ const getDbConnection = async () => {
     dbConn.error = null;
 
     dbConn.query = async (queryString, options = {}) => {
-
+        const safeString = queryString.replace(/[\n\r]/g, '');
         const queryPromise = new Promise((resolve, reject) => {
-            mysqlCon.query(queryString, options, (err, data) => {
+            mysqlCon.query(safeString, options, (err, data) => {
                 if (err) resolve([err, null]);
                 resolve([null, data]);
             })
