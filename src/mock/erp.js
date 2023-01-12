@@ -14,7 +14,7 @@ const maraCosts = [];
 
 for(let i = 1; i < 21; i++){
     const currency = ['USD','INR'][crypto.randomInt(0,2)];
-    const unit_price = currency === 'USD'? crypto.randomInt(200,300):  crypto.randomInt(500,600);
+    const unit_price = currency === 'USD'? crypto.randomInt(200,300):  crypto.randomInt(1500,2100);
     maraCosts.push({
         matnr: materials[i-1].matnr,
         unit_price,
@@ -43,7 +43,7 @@ for(let i = 1; i < 501; i++) {
         date: ogDate.toISOString().split('T')[0],
         transaction_status: status[crypto.randomInt(0,2)],
         matnr: materials[crypto.randomInt(0,20)].matnr,
-        units: crypto.randomInt(0, 30)
+        units: crypto.randomInt(50, 90)
     }
     const materialCost = maraCosts.find(i => i.matnr === transact.matnr);
     transact.cost = transact.units * materialCost?.unit_price;

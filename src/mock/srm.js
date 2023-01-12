@@ -15,7 +15,7 @@ for (let i = 1; i < 101; i++) {
     })
 }
 
-const CITY = ['UTTAH', 'SAN FRANSICO', 'NEW DELHI', 'BENGALURU', 'NEW YORK', 'SAN JOSE']
+const CITY = ['UTTAH', 'SAN FRANSICO', 'NEW DELHI   ', 'BENGALURU', 'NEW YORK', 'SAN JOSE']
 for (let i = 1; i < 11; i++) {
     vendors.push({
         vendor_id: 50000 + i,
@@ -33,7 +33,7 @@ for (let i = 1; i < 601; i++) {
     ogDate.setDate(ogDate.getDate() + crypto.randomInt(1, 360));
     const currency = ['USD','INR'][crypto.randomInt(0,2)];
     const unit_price = currency === 'USD'? crypto.randomInt(5,15):  crypto.randomInt(90,170);
-    const total_units = crypto.randomInt(1, 68);
+    const total_units = crypto.randomInt(1, 30);
     const transact = {
         transaction_id: 60000 + i,
         date: ogDate.toISOString().split('T')[0],
