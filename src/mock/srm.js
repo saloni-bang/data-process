@@ -31,15 +31,19 @@ const transaction = [];
 for (let i = 1; i < 601; i++) {
     const ogDate = new Date('2021-01-01T00:00:00.000Z');
     ogDate.setDate(ogDate.getDate() + crypto.randomInt(1, 360));
+    const currency = ['USD','INR'][crypto.randomInt(0,2)];
+    const unit_price = currency === 'USD'? crypto.randomInt(5,15):  crypto.randomInt(90,170);
+    const total_units = crypto.randomInt(1, 68);
     const transact = {
         transaction_id: 60000 + i,
         date: ogDate.toISOString().split('T')[0],
         transaction_status: status[crypto.randomInt(0, 2)],
         vendor_id: vendors[crypto.randomInt(0, 10)].vendor_id,
         product_id: products[crypto.randomInt(0, 100)].product_id,
-        unit_price: crypto.randomInt(5, 15),
-        currency: 'USD',
-        total_units: crypto.randomInt(1, 68)
+        unit_price,
+        currency,
+        total_units,
+        total_price: total_units * unit_price
     }
 
     transaction.push(transact);

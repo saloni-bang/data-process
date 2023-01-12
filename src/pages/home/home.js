@@ -23,10 +23,10 @@ const pageStructure = {
     },
     "2: Transform": {
         transformErp: {
-            calculateErpTransactionCost: 'http://localhost:3090/transform-erp-transactions'
+            standarizeErpTransactionCurrency: 'http://localhost:3090/transform-erp-transactions'
         },
         transformSrm: {
-            calculateSrmTransactionCost: 'http://localhost:3090/transform-srm-transactions'
+            standarizeSrmTransactionCurrency: 'http://localhost:3090/transform-srm-transactions'
         }
     },
     "3: Load": {

@@ -22,12 +22,12 @@ app.get('/transform-erp-transactions', async (req, res) => {
     const costs = require("../mock/erp.json").maraCosts;
     const transformedTransactions = [];
     for (const transaction of transactions) {
-        const materialCost = costs.find(i => i.matnr === transaction.matnr);
-        transformedTransactions.push({
-            ...transaction,
-            cost: transaction.units * materialCost?.unit_price,
-            currency: materialCost.currency
-        })
+        const trans = { ...transaction };
+        if (trans.currency === 'INR') {
+            trans.currency = 'USD';
+            trans.cost = trans.cost / 80;
+        }
+        transformedTransactions.push(trans);
     }
 
     res.status(200).send(transformedTransactions);
@@ -38,10 +38,13 @@ app.get('/transform-srm-transactions', async (req, res) => {
     const transactions = require('../mock/srm.json').transaction;
 
     const transformedTransaction = transactions.map(transaction => {
-        return {
-            ...transaction,
-            total_price: transaction.unit_price * transaction.total_units
+        const trans = {...trans};
+        if(trans.currency === 'INR') {
+            trans.currency = 'USD';
+            trans.unit_price = trans.unit_price / 80;
+            trans.total_price = trans.unit_price * trans.total_units
         }
+        return trans;
     });
 
     res.status(200).send(transformedTransaction);
@@ -252,8 +255,8 @@ app.get('/clear-all', async (req, res) => {
         'SRM_TRANSACTIONS',
         'SRM_PRODUCTS',
         'SRM_VENDORS'
-    ].map( i => `DROP TABLE IF EXISTS ${i};`).join('');
-    
+    ].map(i => `DROP TABLE IF EXISTS ${i};`).join('');
+
     const [err, data] = await dbConn.query(queryStr)
 
     if (err) return res.status(500).send(err);
@@ -262,7 +265,7 @@ app.get('/clear-all', async (req, res) => {
     res.header("Pragma", "no-cache");
     res.header("Expires", 0);
 
-    return res.status(200).send({message: 'All tables were dropped'});
+    return res.status(200).send({ message: 'All tables were dropped' });
 
 });
 
