@@ -25,7 +25,7 @@ app.get('/transform-erp-transactions', async (req, res) => {
         const trans = { ...transaction };
         if (trans.currency === 'INR') {
             trans.currency = 'USD';
-            trans.cost = trans.cost / 80;
+            trans.cost = Math.round(trans.cost / 80);
         }
         transformedTransactions.push(trans);
     }
@@ -41,7 +41,7 @@ app.get('/transform-srm-transactions', async (req, res) => {
         const trans = {...transaction};
         if(trans.currency === 'INR') {
             trans.currency = 'USD';
-            trans.unit_price = trans.unit_price / 80;
+            trans.unit_price = Math.round(trans.unit_price / 80);
             trans.total_price = trans.unit_price * trans.total_units
         }
         return trans;
