@@ -273,7 +273,7 @@ app.get('/material-proc-vs-sell', async (req, res) => {
                     a.matnr,
                     a.product_id, 
                     a.product_units,
-                    (a.product_units * avg(b.unit_price)) as 'proc_price'
+                    (a.product_units * round(avg(b.unit_price),0)) as 'proc_price'
             from erp_bill_of_materials  a , srm_transactions b
             where a.product_id = b.product_id 
             group by matnr, product_id, product_units
