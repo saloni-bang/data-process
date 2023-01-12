@@ -15,7 +15,7 @@ for (let i = 1; i < 101; i++) {
     })
 }
 
-const CITY = ['UTTAH', 'SAN FRANSICO', 'MICHIGAN', 'MINEAPOLIS', 'NEW YORK', 'SAN JOSE']
+const CITY = ['UTTAH', 'SAN FRANSICO', 'NEW DELHI', 'BENGALURU', 'NEW YORK', 'SAN JOSE']
 for (let i = 1; i < 11; i++) {
     vendors.push({
         vendor_id: 50000 + i,
