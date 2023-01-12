@@ -215,8 +215,6 @@ app.get('/load-srm-vendors', async (req, res) => {
 });
 
 app.get('/load-srm-transactions', async (req, res) => {
-    const transactions = require("../mock/srm.json").transaction;
-
 
     const transactions = require('../mock/srm.json').transaction;
 
