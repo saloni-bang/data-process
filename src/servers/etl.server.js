@@ -38,7 +38,7 @@ app.get('/transform-srm-transactions', async (req, res) => {
     const transactions = require('../mock/srm.json').transaction;
 
     const transformedTransaction = transactions.map(transaction => {
-        const trans = {...trans};
+        const trans = {...transaction};
         if(trans.currency === 'INR') {
             trans.currency = 'USD';
             trans.unit_price = trans.unit_price / 80;

@@ -22,12 +22,8 @@ const pageStructure = {
         }
     },
     "2: Transform": {
-        transformErp: {
-            standarizeErpTransactionCurrency: 'http://localhost:3090/transform-erp-transactions'
-        },
-        transformSrm: {
-            standarizeSrmTransactionCurrency: 'http://localhost:3090/transform-srm-transactions'
-        }
+        standarizeErpTransactionCurrency: 'http://localhost:3090/transform-erp-transactions',
+        standarizeSrmTransactionCurrency: 'http://localhost:3090/transform-srm-transactions'
     },
     "3: Load": {
         clearAll: 'http://localhost:3090/clear-all',
@@ -46,7 +42,7 @@ const pageStructure = {
         }
     },
     "4: Analyze": {
-        getMaterialProcurementVsSellingPrice: 'http://localhost:3090/material-proc-vs-sell'   
+        getMaterialProcurementVsSellingPrice: 'http://localhost:3090/material-proc-vs-sell'
     }
 }
 
