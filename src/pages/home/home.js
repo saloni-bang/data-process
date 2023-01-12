@@ -135,7 +135,7 @@ const showResults = async (url, key) => {
     showLoader();
     const res = await fetch(url);
     const result = await res.text();
-    await delayProm(800);
+    await delayProm(500);
     hideLoader();
 
     if (res.status !== 200) {
