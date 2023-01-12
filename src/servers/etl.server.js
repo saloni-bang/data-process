@@ -19,7 +19,6 @@ app.get('/', (req, res) => {
 
 app.get('/transform-erp-transactions', async (req, res) => {
     const transactions = require("../mock/erp.json").transaction;
-    const costs = require("../mock/erp.json").maraCosts;
     const transformedTransactions = [];
     for (const transaction of transactions) {
         const trans = { ...transaction };
@@ -144,15 +143,14 @@ app.get('/load-erp-transactions', async (req, res) => {
     // transaform part
 
     const transactions = require("../mock/erp.json").transaction;
-    const costs = require("../mock/erp.json").maraCosts;
     const transformedTransactions = [];
     for (const transaction of transactions) {
-        const materialCost = costs.find(i => i.matnr === transaction.matnr);
-        transformedTransactions.push({
-            ...transaction,
-            cost: transaction.units * materialCost?.unit_price,
-            currency: materialCost.currency
-        })
+        const trans = { ...transaction };
+        if (trans.currency === 'INR') {
+            trans.currency = 'USD';
+            trans.cost = Math.round(trans.cost / 80);
+        }
+        transformedTransactions.push(trans);
     }
 
     //load part
@@ -220,11 +218,16 @@ app.get('/load-srm-transactions', async (req, res) => {
     const transactions = require("../mock/srm.json").transaction;
 
 
+    const transactions = require('../mock/srm.json').transaction;
+
     const transformedTransaction = transactions.map(transaction => {
-        return {
-            ...transaction,
-            total_price: transaction.unit_price * transaction.total_units
+        const trans = {...transaction};
+        if(trans.currency === 'INR') {
+            trans.currency = 'USD';
+            trans.unit_price = Math.round(trans.unit_price / 80);
+            trans.total_price = trans.unit_price * trans.total_units
         }
+        return trans;
     });
 
     const values = transformedTransaction.map(i => {
